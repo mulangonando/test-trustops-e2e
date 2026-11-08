@@ -30,3 +30,6 @@ class Node:
         return self.left is not None or self.right is not None
     def is_only_child(self):
         return self.parent and ((self.parent.left is self and self.parent.right is None) or (self.parent.right is self and self.parent.left is None))   
+    
+if __name__ == "__main__":
+    pass
