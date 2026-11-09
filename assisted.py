@@ -229,3 +229,77 @@ print(f"Max value: {max_val}")                      # 17
 print(f"Items taken (0-indexed): {items}")          # [0, 1, 2]
 print(f"Weights used: {[weights[i] for i in items]}")  # [1, 2, 3]
 print(f"Values used:  {[values[i]  for i in items]}")  # [1, 6, 10]
+
+
+# ---------------------------------------------------------------------------
+# LONGEST COMMON SUBSEQUENCE  (LCS)
+# ---------------------------------------------------------------------------
+# Problem: Given two strings, find the length of their longest common
+# subsequence — a sequence of characters that appears in both strings in the
+# same relative order, but not necessarily contiguously.
+#
+# Example:  s1 = "abcde",  s2 = "ace"
+#   LCS = "ace",  length = 3
+#
+# Note: "ace" is NOT a substring (it skips chars), but it IS a subsequence.
+#
+# Approach – 2D DP table:
+#   dp[i][j] = length of LCS of s1[:i] and s2[:j]
+#
+# Recurrence:
+#   If s1[i-1] == s2[j-1]:  dp[i][j] = dp[i-1][j-1] + 1   (extend the match)
+#   Else:                    dp[i][j] = max(dp[i-1][j],     (skip char from s1)
+#                                           dp[i][j-1])     (skip char from s2)
+#
+# Base case: dp[i][0] = dp[0][j] = 0  (empty string has no common subsequence)
+# ---------------------------------------------------------------------------
+
+def lcs_length(s1: str, s2: str) -> int:
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i - 1] == s2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+    return dp[m][n]
+
+
+def lcs_string(s1: str, s2: str) -> str:
+    """Reconstructs the actual LCS string by backtracking the DP table."""
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i - 1] == s2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+
+    # Backtrack from dp[m][n] to reconstruct the sequence
+    result = []
+    i, j = m, n
+    while i > 0 and j > 0:
+        if s1[i - 1] == s2[j - 1]:
+            result.append(s1[i - 1])   # this character is part of the LCS
+            i -= 1
+            j -= 1
+        elif dp[i - 1][j] > dp[i][j - 1]:
+            i -= 1                      # came from skipping s1[i-1]
+        else:
+            j -= 1                      # came from skipping s2[j-1]
+
+    return "".join(reversed(result))
+
+
+# Example usage:
+print(lcs_length("abcde", "ace"))              # 3
+print(lcs_length("abc", "abc"))                # 3
+print(lcs_length("abc", "def"))                # 0
+
+print(lcs_string("abcde", "ace"))              # ace
+print(lcs_string("AGGTAB", "GXTXAYB"))         # GTAB
